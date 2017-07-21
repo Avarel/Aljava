@@ -43,49 +43,99 @@ public class Fraction implements TexElement {
         return new Fraction(Math.abs(numerator), Math.abs(denominator));
     }
 
+
+
     public Fraction plus(int other) {
-        return plus(new Fraction(other));
+        return plus(other, true);
+    }
+
+    public Fraction plus(int other, boolean reduce) {
+        return plus(new Fraction(other), reduce);
     }
 
     public Fraction plus(Fraction other) {
+        return plus(other, true);
+    }
+
+    public Fraction plus(Fraction other, boolean reduce) {
         if (this.denominator == other.denominator) {
-            return new Fraction(this.numerator + other.numerator, denominator);
+            Fraction result = new Fraction(this.numerator + other.numerator, denominator);
+            return reduce ? result.reduce() : result;
         }
 
         int lcm = lcm(this.denominator, other.denominator);
         int a = lcm / this.denominator;
         int b = lcm / other.denominator;
 
-        return new Fraction(this.numerator * a + other.numerator * b, lcm).reduce();
+        Fraction result = new Fraction(this.numerator * a + other.numerator * b, lcm);
+        return reduce ? result.reduce() : result;
     }
 
+
+
     public Fraction minus(int other) {
-        return minus(new Fraction(other));
+        return minus(other, true);
+    }
+
+    public Fraction minus(int other, boolean reduce) {
+        return minus(new Fraction(other), reduce);
     }
 
     public Fraction minus(Fraction other) {
-        return this.plus(new Fraction(-other.numerator, other.denominator));
+        return minus(other, true);
     }
 
+    public Fraction minus(Fraction other, boolean reduce) {
+        return plus(new Fraction(-other.numerator, other.denominator), reduce);
+    }
+
+
+
     public Fraction times(int other) {
-        return times(new Fraction(other));
+        return times(other, true);
+    }
+
+    public Fraction times(int other, boolean reduce) {
+        return times(new Fraction(other), reduce);
     }
 
     public Fraction times(Fraction other) {
-        return new Fraction(this.numerator * other.numerator, this.denominator * other.denominator).reduce();
+        return times(other, true);
     }
 
+    public Fraction times(Fraction other, boolean reduce) {
+        Fraction result = new Fraction(this.numerator * other.numerator, this.denominator * other.denominator);
+        return reduce ? result.reduce() : result;
+    }
+
+
+
     public Fraction div(int other) {
-        return times(new Fraction(other));
+        return div(other, true);
+    }
+
+    public Fraction div(int other, boolean reduce) {
+        return div(new Fraction(other), reduce);
     }
 
     public Fraction div(Fraction other) {
-        return this.times(other.reciprocal());
+        return div(other, true);
     }
 
+    public Fraction div(Fraction other, boolean reduce) {
+        return times(other.reciprocal(), reduce);
+    }
+
+
+
     public Fraction pow(int n) {
+        return pow(n, true);
+    }
+
+    public Fraction pow(int n, boolean reduce) {
         if (n >= 0) {
-            return new Fraction((int) Math.pow(numerator, n), (int) Math.pow(denominator, n)).reduce();
+            Fraction result = new Fraction((int) Math.pow(numerator, n), (int) Math.pow(denominator, n));
+            return reduce ? result.reduce() : result;
         } else {
             return pow(Math.abs(n)).reciprocal();
         }

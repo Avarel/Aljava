@@ -67,68 +67,81 @@ public class Expression implements TexElement{
     }
 
     public Expression plus(String other) {
-        return plus(new Expression(other));
+        return plus(new Expression(other), true);
     }
 
     public Expression plus(int other) {
-        return plus(new Expression(other));
+        return plus(new Expression(other), true);
     }
 
     public Expression plus(Term other) {
-        return plus(new Expression(other));
+        return plus(new Expression(other), true);
     }
 
     public Expression plus(Fraction other) {
-        return plus(new Expression(other));
+        return plus(new Expression(other), true);
     }
 
     public Expression plus(Expression other) {
+        return plus(other, true);
+    }
+
+    public Expression plus(Expression other, boolean simplify) {
         List<Term> newTerms = new ArrayList<>(this.terms);
         newTerms.addAll(other.terms);
 
         List<Fraction> newConstants = new ArrayList<>(this.constants);
         newConstants.addAll(other.constants);
 
-        return new Expression(newTerms, newConstants).simplify();
+        Expression result = new Expression(newTerms, newConstants);
+        return simplify ? result.simplify() : result;
     }
 
     public Expression minus(String other) {
-        return minus(new Expression(other));
+        return minus(new Expression(other), true);
     }
 
     public Expression minus(int other) {
-        return minus(new Expression(other));
+        return minus(new Expression(other), true);
     }
 
     public Expression minus(Term other) {
-        return minus(new Expression(other));
+        return minus(new Expression(other), true);
     }
 
     public Expression minus(Fraction other) {
-        return minus(new Expression(other));
+        return minus(new Expression(other), true);
     }
 
     public Expression minus(Expression other) {
-        return plus(other.times(-1));
+        return minus(other, true);
+    }
+
+    public Expression minus(Expression other, boolean simplify) {
+        return plus(other.times(-1), simplify);
     }
 
     public Expression times(String other) {
-        return times(new Expression(other));
+        return times(new Expression(other), true);
     }
 
     public Expression times(int other) {
-        return times(new Expression(other));
+        return times(new Expression(other), true);
     }
 
     public Expression times(Term other) {
-        return times(new Expression(other));
+        return times(new Expression(other), true);
     }
 
     public Expression times(Fraction other) {
-        return times(new Expression(other));
+        return times(new Expression(other), true);
     }
 
     public Expression times(Expression other) {
+        return times(other, true);
+    }
+
+    public Expression times(Expression other, boolean simplify) {
         List<Term> newTerms = new ArrayList<>();
 
         for (Term thisTerm : this.terms) {
@@ -155,7 +168,8 @@ public class Expression implements TexElement{
             }
         }
 
-        return new Expression(newTerms, newConstants).simplify();
+        Expression result = new Expression(newTerms, newConstants);
+        return simplify ? result.simplify() : result;
     }
 
     public Expression div(String other) {
@@ -193,6 +207,10 @@ public class Expression implements TexElement{
     }
 
     public Expression div(Expression other) {
+        return div(other, true);
+    }
+
+    public Expression div(Expression other, boolean simplify) {
         Expression num = this.simplify();
         Expression den = other.simplify();
 
@@ -262,7 +280,8 @@ public class Expression implements TexElement{
             newTerms.add(new Term(Collections.singletonList(newCoefficient), variables));
         }
 
-        return new Expression(newTerms, Collections.emptyList()).simplify();
+        Expression result = new Expression(newTerms, Collections.emptyList());
+        return simplify ? result.simplify() : result;
     }
 
     public Expression pow(int n) {
@@ -312,8 +331,11 @@ public class Expression implements TexElement{
                 }
 
                 List<Fraction> newCoeff = new ArrayList<>();
-                newCoeff.add(term.getCoefficients().get(0).abs());
-                newCoeff.addAll(term.getCoefficients().subList(1, term.getCoefficients().size()));
+
+                if (!term.getCoefficients().isEmpty()) {
+                    newCoeff.add(term.getCoefficients().get(0).abs());
+                    newCoeff.addAll(term.getCoefficients().subList(1, term.getCoefficients().size()));
+                }
 
                 term = new Term(newCoeff, term.getVariables());
             }
@@ -355,8 +377,10 @@ public class Expression implements TexElement{
                 }
 
                 List<Fraction> newCoeff = new ArrayList<>();
-                newCoeff.add(term.getCoefficients().get(0).abs());
-                newCoeff.addAll(term.getCoefficients().subList(1, term.getCoefficients().size()));
+                if (!term.getCoefficients().isEmpty()) {
+                    newCoeff.add(term.getCoefficients().get(0).abs());
+                    newCoeff.addAll(term.getCoefficients().subList(1, term.getCoefficients().size()));
+                }
 
                 term = new Term(newCoeff, term.getVariables());
             }
@@ -427,7 +451,7 @@ public class Expression implements TexElement{
         return new Expression(keepTerms, newConstants);
     }
 
-    Expression sort() {
+    private Expression sort() {
         List<Term> sortedTerms = new ArrayList<>(terms);
         sortedTerms.sort((a, b) -> {
             String aName = a.getVariables().isEmpty() ? "" : a.getVariables().get(0).getName();

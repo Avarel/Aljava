@@ -66,53 +66,64 @@ public class Term implements TexElement {
     }
 
     public Term plus(Term other) {
-        Term thisSimple = this.simplify();
-        Term otherSimple = other.simplify();
-        if (thisSimple.canBeCombinedWith(otherSimple)) {
-            return new Term(Collections.singletonList(thisSimple.coefficient().plus(otherSimple.coefficient())), thisSimple.variables);
+        if (this.canBeCombinedWith(other)) {
+            return new Term(Collections.singletonList(this.coefficient().plus(other.coefficient())), this.variables);
         } else {
             throw new ArithmeticException(this.toString() + " can not be combined with " + other.toString());
         }
     }
 
     public Term minus(Term other) {
-        Term thisSimple = simplify();
-        Term otherSimple = other.simplify();
-        if (thisSimple.canBeCombinedWith(otherSimple)) {
-            return new Term(Collections.singletonList(thisSimple.coefficient().minus(otherSimple.coefficient())), thisSimple.variables);
+        if (this.canBeCombinedWith(other)) {
+            return new Term(Collections.singletonList(this.coefficient().minus(other.coefficient())), this.variables);
         } else {
             throw new ArithmeticException(this.toString() + " can not be combined with " + other.toString());
         }
     }
 
     public Term times(Term other) {
+        return times(other, true);
+    }
+
+    public Term times(Term other, boolean simplify) {
         List<Fraction> newCoefficients = new ArrayList<>(this.coefficients);
         newCoefficients.addAll(other.coefficients);
 
         List<Variable> newVariables = new ArrayList<>(this.variables);
         newVariables.addAll(other.variables);
 
-        return new Term(newCoefficients, newVariables).simplify();
+        Term result =  new Term(newCoefficients, newVariables).simplify();
+        return simplify ? result.simplify() : result;
     }
 
     public Term times(Fraction other) {
+        return times(other, true);
+    }
+
+    public Term times(Fraction other, boolean simplify) {
         List<Fraction> newCoefficients = new ArrayList<>(this.coefficients);
         newCoefficients.add(other);
 
-        return new Term(newCoefficients, this.variables).simplify();
+        Term result = new Term(newCoefficients, this.variables);
+        return simplify ? result.simplify() : result;
     }
 
     public Term div(Fraction other) {
+        return div(other, true);
+    }
+
+    public Term div(Fraction other, boolean simplify) {
         List<Fraction> newCoefficients = new ArrayList<>();
         for (Fraction coefficient : coefficients) {
             newCoefficients.add(coefficient.div(other));
         }
 
-        return new Term(newCoefficients, this.variables).simplify();
+        Term result = new Term(newCoefficients, this.variables).simplify();
+        return simplify ? result.simplify() : result;
     }
 
     public int maxDegree() {
-        List<Variable> simplified = simplify().variables;
+        List<Variable> simplified = variables;
         if (simplified.isEmpty()) return 0;
         int degree = simplified.get(0).getDegree();
         for (int i = 1; i < simplified.size(); i++) {
@@ -122,7 +133,7 @@ public class Term implements TexElement {
     }
 
     public int maxDegreeOfVariable(String name) {
-        List<Variable> simplified = simplify().variables;
+        List<Variable> simplified = variables;
 
         if (simplified.isEmpty()) return 0;
 
@@ -225,8 +236,8 @@ public class Term implements TexElement {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Term) {
-            Term me = this.simplify();
-            Term other = ((Term) obj).simplify();
+            Term me = this;
+            Term other = ((Term) obj);
             return me.coefficients.equals(other.coefficients) && me.variables.equals(other.variables);
         }
         return this == obj;

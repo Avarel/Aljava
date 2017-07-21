@@ -21,6 +21,8 @@ public class Parser {
         this.tokens = new ArrayList<>();
     }
 
+
+
     private Token getLast() {
         return last;
     }
@@ -119,8 +121,8 @@ public class Parser {
     public Expression parseExpression() {
         Expression value = parseTerm();
         while (true) {
-            if (match(TokenType.PLUS)) value = value.plus(parseTerm());
-            else if (match(TokenType.MINUS)) value = value.minus(parseTerm());
+            if (match(TokenType.PLUS)) value = value.plus(parseTerm(), false);
+            else if (match(TokenType.MINUS)) value = value.minus(parseTerm(), false);
             else return value;
         }
     }
@@ -128,8 +130,8 @@ public class Parser {
     public Expression parseTerm() {
         Expression value = parseFactor();
         while (true) {
-            if (match(TokenType.TIMES)) value = value.times(parseFactor());
-            else if (match(TokenType.DIV)) value = value.div(parseFactor());
+            if (match(TokenType.TIMES)) value = value.times(parseFactor(), false);
+            else if (match(TokenType.DIV)) value = value.div(parseFactor(), false);
             else return value;
         }
     }
@@ -152,11 +154,11 @@ public class Parser {
         }
 
         if (nextIs(TokenType.LEFT_PAREN)) {
-            value = value.times(parseExpression());
+            value = value.times(parseExpression(), false);
         } else if (match(TokenType.POW)) {
             value = value.pow(parseFactor());
         } else if (nextIs(TokenType.VARIABLE)) {
-            value = value.times(parseFactor());
+            value = value.times(parseFactor(), false);
         }
 
         return value;

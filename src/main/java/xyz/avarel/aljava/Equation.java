@@ -25,6 +25,10 @@ public class Equation implements TexElement {
         this.rhs = rhs;
     }
 
+    public Equation simplify() {
+        return new Equation(lhs.simplify(), rhs.simplify());
+    }
+
     public List<Object> solveFor(String variable) {
         if (!lhs.hasVariable(variable) && !rhs.hasVariable(variable)) {
             throw new ArithmeticException("Variable (" + variable + ") does not exist on either side of the equation.");

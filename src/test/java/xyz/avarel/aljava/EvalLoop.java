@@ -27,20 +27,30 @@ public class EvalLoop {
             if (str.contains("=")) {
                 Equation expr = new Parser(new Lexer(str)).parseEquation();
 
+                System.out.println(expr);
+
+                Equation simplified = expr.simplify();
+
                 StringJoiner joiner = new StringJoiner(", ");
-                for (Object ans : expr.solveFor("x")) {
+                for (Object ans : simplified.solveFor("x")) {
                     joiner.add(ans.toString());
                 }
                 String result = joiner.toString();
 
                 System.out.println(result);
 
-                printTex(expr.toTex(), "result");
+                printTex(expr.toTex(), "expression");
+                printTex(simplified.toTex(), "result");
             } else {
                 Expression expr = new Parser(new Lexer(str)).parse();
 
-                System.out.println(expr.simplify());
+                System.out.println(expr);
 
+                Expression simplified = expr.simplify();
+
+                System.out.println(simplified);
+
+                printTex(expr.toTex(), "expression");
                 printTex(expr.toTex(), "result");
             }
         }
