@@ -322,6 +322,14 @@ public class Expression implements TexElement{
             if (i > 0) {
                 if (!term.getCoefficients().isEmpty()) {
                     sb.append(term.getCoefficients().get(0).toDouble() < 0 ? " - " : " + ");
+
+                    List<Fraction> newCoeff = new ArrayList<>();
+                    if (!term.getCoefficients().isEmpty()) {
+                        newCoeff.add(term.getCoefficients().get(0).abs());
+                        newCoeff.addAll(term.getCoefficients().subList(1, term.getCoefficients().size()));
+                    }
+
+                    term = new Term(newCoeff, term.getVariables());
                 } else {
                     sb.append(" + ");
                 }
@@ -368,6 +376,14 @@ public class Expression implements TexElement{
             if (i > 0) {
                 if (!term.getCoefficients().isEmpty()) {
                     sb.append(term.getCoefficients().get(0).toDouble() < 0 ? " - " : " + ");
+
+                    List<Fraction> newCoeff = new ArrayList<>();
+                    if (!term.getCoefficients().isEmpty()) {
+                        newCoeff.add(term.getCoefficients().get(0).abs());
+                        newCoeff.addAll(term.getCoefficients().subList(1, term.getCoefficients().size()));
+                    }
+
+                    term = new Term(newCoeff, term.getVariables());
                 } else {
                     sb.append(" + ");
                 }
