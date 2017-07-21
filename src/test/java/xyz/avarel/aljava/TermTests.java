@@ -28,7 +28,7 @@ public class TermTests {
                 Arrays.asList(new Variable("x", 2), new Variable("x", 2),
                         new Variable("y"), new Variable("y")));
 
-        Assert.assertEquals(simplified, a.plus(b));
+        Assert.assertEquals(simplified, a.simplify().plus(b.simplify()));
     }
 
     @Test

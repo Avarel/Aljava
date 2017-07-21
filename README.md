@@ -1,4 +1,4 @@
-Aljava  [![Download](https://api.bintray.com/packages/avarel/maven/Aljava/images/download.svg)](https://bintray.com/avarel/maven/Aljava/_latestVersion)
+Aljava [![Download](https://api.bintray.com/packages/avarel/maven/Aljava/images/download.svg)](https://bintray.com/avarel/maven/Aljava/_latestVersion) [![Build Status](https://travis-ci.org/Avarel/Aljava.svg?branch=master)](https://travis-ci.org/Avarel/Aljava)
 ===
 This is a port of **[algebra.js](https://github.com/nicolewhite/algebra.js)** for Java.
 Aljava closely mimics algebra.js and should support most of its features.
