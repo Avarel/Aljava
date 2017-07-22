@@ -6,14 +6,16 @@ public class Term implements TexElement {
     private final List<Fraction> coefficients;
     private final List<Variable> variables;
 
-    // Workaround to make parsing a bit easier
-    // In an Expression this would be collasped into a normal fraction
+    public Term() {
+        this(new Fraction(0));
+    }
+
     public Term(Fraction constant) {
         this(Collections.singletonList(constant), Collections.emptyList());
     }
 
     public Term(Variable variable) {
-        this(Collections.emptyList(), Collections.singletonList(variable));
+        this(Collections.singletonList(new Fraction(1)), Collections.singletonList(variable));
     }
 
     public Term(Fraction coefficient, Variable variable) {
@@ -157,7 +159,6 @@ public class Term implements TexElement {
     }
 
     public boolean onlyHasVariable(String name) {
-        if (variables.size() < 1) return false;
         for (Variable variable : variables) {
             if (!variable.getName().equals(name)) {
                 return false;
@@ -193,11 +194,13 @@ public class Term implements TexElement {
         for (int i = 0; i < coefficients.size(); i++) {
             Fraction f = coefficients.get(i);
 
-            if (f.abs().toDouble() != 1) {
+            if (variables.isEmpty() || f.abs().toDouble() != 1) {
                 sb.append(f);
 
                 if ((i != coefficients.size() - 1 && maxDegree() == 1) || f.getDenominator() != 1) {
-                    sb.append(" * ");
+                    if (i != coefficients.size() - 1 || !variables.isEmpty()) {
+                        sb.append(" * ");
+                    }
                 }
             }
         }
@@ -215,13 +218,10 @@ public class Term implements TexElement {
 
     @Override
     public String toTex() {
-        String op = " \\cdot ";
-
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < coefficients.size(); i++) {
-            Fraction f = coefficients.get(i);
 
-            if (f.abs().toDouble() != 1) {
+        for (Fraction f : coefficients) {
+            if (variables.isEmpty() || f.abs().toDouble() != 1) {
                 sb.append(f.toTex());
             }
         }

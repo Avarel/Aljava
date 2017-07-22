@@ -12,17 +12,17 @@ public class ExpressionTest {
         Expression complicated = new Expression(
                 Arrays.asList(
                         new Term(new Variable("x")),
-                        new Term(new Variable("x"))
-                ),
-                Arrays.asList(
-                        new Fraction(-4),
-                        new Fraction(9)
+                        new Term(new Variable("x")),
+                        new Term(new Fraction(-4)),
+                        new Term(new Fraction(9))
                 )
         );
 
         Expression simplified = new Expression(
-                new Term(new Fraction(2), new Variable("x")),
-                new Fraction(5)
+                Arrays.asList(
+                        new Term(new Fraction(2), new Variable("x")),
+                        new Term(new Fraction(5))
+                )
         );
 
         Assert.assertEquals(simplified, complicated.simplify());
@@ -33,11 +33,9 @@ public class ExpressionTest {
         Expression a = new Expression(
                 Arrays.asList(
                         new Term(new Variable("x")),
-                        new Term(new Variable("y", 3))
-                ),
-                Arrays.asList(
-                        new Fraction(-4),
-                        new Fraction(9)
+                        new Term(new Variable("y", 3)),
+                        new Term(new Fraction(-4)),
+                        new Term(new Fraction(9))
                 )
         );
 
@@ -45,10 +43,8 @@ public class ExpressionTest {
                 Arrays.asList(
                         new Term(new Variable("x")),
                         new Term(new Variable("x", 2)),
-                        new Term(new Variable("y"))
-                ),
-                Collections.singletonList(
-                        new Fraction(5)
+                        new Term(new Variable("y")),
+                        new Term(new Fraction(5))
                 )
         );
 
@@ -57,10 +53,8 @@ public class ExpressionTest {
                         new Term(new Variable("y", 3)),
                         new Term(new Variable("x", 2)),
                         new Term(new Fraction(2), new Variable("x")),
-                        new Term(new Variable("y"))
-                ),
-                Collections.singletonList(
-                        new Fraction(10)
+                        new Term(new Variable("y")),
+                        new Term(new Fraction(10))
                 )
         );
 
@@ -70,30 +64,24 @@ public class ExpressionTest {
     @Test
     public void multiplication() {
         Expression a = new Expression(
-                Collections.singletonList(
-                        new Term(new Fraction(2), new Variable("x"))
-                ),
-                Collections.singletonList(
-                        new Fraction(3)
+                Arrays.asList(
+                        new Term(new Fraction(2), new Variable("x")),
+                        new Term(new Fraction(3))
                 )
         );
 
         Expression b = new Expression(
-                Collections.singletonList(
-                        new Term(new Fraction(3), new Variable("x"))
-                ),
-                Collections.singletonList(
-                        new Fraction(2)
+                Arrays.asList(
+                        new Term(new Fraction(3), new Variable("x")),
+                        new Term(new Fraction(2))
                 )
         );
 
         Expression expected = new Expression(
                 Arrays.asList(
                         new Term(new Fraction(6), new Variable("x", 2)),
-                        new Term(new Fraction(13), new Variable("x"))
-                ),
-                Collections.singletonList(
-                        new Fraction(6)
+                        new Term(new Fraction(13), new Variable("x")),
+                        new Term(new Fraction(6))
                 )
         );
 
@@ -119,8 +107,7 @@ public class ExpressionTest {
                 Arrays.asList(
                         new Term(new Fraction(2), new Variable("x")),
                         new Term(new Fraction(2), new Variable("y"))
-                ),
-                Collections.emptyList()
+                )
         );
 
         Expression b = new Expression(2);
@@ -129,8 +116,7 @@ public class ExpressionTest {
                 Arrays.asList(
                         new Term(new Variable("x")),
                         new Term(new Variable("y"))
-                ),
-                Collections.emptyList()
+                )
         );
 
         Assert.assertEquals(expected, a.div(b));
@@ -141,10 +127,8 @@ public class ExpressionTest {
         Expression a = new Expression(
                 Arrays.asList(
                         new Term(new Fraction(2), new Variable("x")),
-                        new Term(new Fraction(2), new Variable("y"))
-                ),
-                Collections.singletonList(
-                        new Fraction(6)
+                        new Term(new Fraction(2), new Variable("y")),
+                        new Term(new Fraction(6))
                 )
         );
 
@@ -153,10 +137,8 @@ public class ExpressionTest {
         Expression expected = new Expression(
                 Arrays.asList(
                         new Term(new Variable("x")),
-                        new Term(new Variable("y"))
-                ),
-                Collections.singletonList(
-                        new Fraction(3)
+                        new Term(new Variable("y")),
+                        new Term(new Fraction(3))
                 )
         );
 
@@ -180,8 +162,7 @@ public class ExpressionTest {
                                         new Variable("y")
                                 )
                         )
-                ),
-                Collections.emptyList()
+                )
         );
 
         Expression expected = new Expression(
@@ -193,8 +174,7 @@ public class ExpressionTest {
                                         new Variable("y", -1)
                                 )
                         )
-                ),
-                Collections.emptyList()
+                )
         );
 
         Assert.assertEquals(expected, a.div(b));

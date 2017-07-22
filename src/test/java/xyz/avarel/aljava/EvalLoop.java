@@ -22,11 +22,10 @@ public class EvalLoop {
             System.out.print("▶ ");
             String str = sc.nextLine();
 
-            System.out.print("◀ ");
-
             if (str.contains("=")) {
                 Equation expr = new Parser(new Lexer(str)).parseEquation();
 
+                System.out.print("? ");
                 System.out.println(expr);
 
                 Equation simplified = expr.simplify();
@@ -37,6 +36,7 @@ public class EvalLoop {
                 }
                 String result = joiner.toString();
 
+                System.out.print("◀ ");
                 System.out.println(result);
 
                 printTex(expr.toTex(), "expression");
@@ -44,15 +44,19 @@ public class EvalLoop {
             } else {
                 Expression expr = new Parser(new Lexer(str)).parse();
 
+                System.out.print("? ");
                 System.out.println(expr);
 
                 Expression simplified = expr.simplify();
 
+                System.out.print("◀ ");
                 System.out.println(simplified);
 
                 printTex(expr.toTex(), "expression");
                 printTex(expr.toTex(), "result");
             }
+
+            System.out.println();
         }
     }
 

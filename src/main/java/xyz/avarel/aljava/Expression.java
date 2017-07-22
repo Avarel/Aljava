@@ -6,10 +6,10 @@ import java.util.List;
 
 public class Expression implements TexElement{
     private final List<Term> terms;
-    private final List<Fraction> constants;
+//    private final List<Fraction> constants;
 
     public Expression() {
-        this(Collections.emptyList(), Collections.emptyList());
+        this(Collections.emptyList());
     }
 
     public Expression(String name) {
@@ -21,26 +21,24 @@ public class Expression implements TexElement{
     }
 
     public Expression(Fraction constant) {
-        this(Collections.emptyList(), Collections.singletonList(constant));
+        this(Collections.singletonList(new Term(constant)));
     }
 
     public Expression(Term term) {
-        this(Collections.singletonList(term), Collections.emptyList());
+        this(Collections.singletonList(term));
     }
 
-    public Expression(Term term, Fraction constant) {
-        this(Collections.singletonList(term), Collections.singletonList(constant));
-    }
-
-    public Expression(List<Term> terms, List<Fraction> constants) {
+    public Expression(List<Term> terms) {
         this.terms = terms;
-        this.constants = constants;
+//        this.constants = constants;
     }
 
-    public Fraction constant() {
-        Fraction accumulator = new Fraction(0, 1);
-        for (Fraction constant : constants) {
-            accumulator = accumulator.plus(constant);
+    public Term constant() {
+        Term accumulator = new Term(new Fraction(0));
+        for (Term term : terms) {
+            if (term.getVariables().isEmpty()) {
+                accumulator = accumulator.plus(term);
+            }
         }
         return accumulator;
     }
@@ -51,19 +49,12 @@ public class Expression implements TexElement{
             simplifiedTerms.add(term.simplify());
         }
 
-        Expression simplifiedExpr = new Expression(simplifiedTerms, constants)
+        Expression simplifiedExpr = new Expression(simplifiedTerms)
                 .sort()
                 .combineLikeTerms()
-                .moveTermsWithDegreeZeroToConstants()
                 .removeTermsWithCoefficientZero();
 
-        List<Fraction> newConstants = new ArrayList<>();
-        Fraction constant = simplifiedExpr.constant();
-        if (constant.getNumerator() != 0) {
-            newConstants.add(constant);
-        }
-
-        return new Expression(simplifiedExpr.terms, newConstants);
+        return new Expression(simplifiedExpr.terms);
     }
 
     public Expression plus(String other) {
@@ -90,10 +81,7 @@ public class Expression implements TexElement{
         List<Term> newTerms = new ArrayList<>(this.terms);
         newTerms.addAll(other.terms);
 
-        List<Fraction> newConstants = new ArrayList<>(this.constants);
-        newConstants.addAll(other.constants);
-
-        Expression result = new Expression(newTerms, newConstants);
+        Expression result = new Expression(newTerms);
         return simplify ? result.simplify() : result;
     }
 
@@ -148,27 +136,9 @@ public class Expression implements TexElement{
             for (Term otherTerm : other.terms) {
                 newTerms.add(thisTerm.times(otherTerm));
             }
-
-            for (Fraction otherConstant : other.constants) {
-                newTerms.add(thisTerm.times(otherConstant));
-            }
         }
 
-        for (Fraction thisConstant : this.constants) {
-            for (Term otherTerm : other.terms) {
-                newTerms.add(otherTerm.times(thisConstant));
-            }
-        }
-
-        List<Fraction> newConstants = new ArrayList<>();
-
-        for (Fraction thisConstant : this.constants) {
-            for (Fraction otherConstant : other.constants) {
-                newConstants.add(thisConstant.times(otherConstant));
-            }
-        }
-
-        Expression result = new Expression(newTerms, newConstants);
+        Expression result = new Expression(newTerms);
         return simplify ? result.simplify() : result;
     }
 
@@ -197,13 +167,7 @@ public class Expression implements TexElement{
             newTerms.add(new Term(newCoefficients, term.getVariables()));
         }
 
-        List<Fraction> newConstants = new ArrayList<>();
-
-        for (Fraction constant : constants) {
-            newConstants.add(constant.div(other));
-        }
-
-        return new Expression(newTerms, newConstants);
+        return new Expression(newTerms);
     }
 
     public Expression div(Expression other) {
@@ -214,15 +178,10 @@ public class Expression implements TexElement{
         Expression num = this.simplify();
         Expression den = other.simplify();
 
-        int denLen = den.terms.size() + den.constants.size();
+        int denLen = den.terms.size();
 
         if (denLen != 1) {
             throw new ArithmeticException("Expressions can only be divided by monomials.");
-        }
-
-        if (den.terms.size() != 1) {
-            // den constants must be 1
-            return div(den.constants.get(0));
         }
 
         List<Term> newTerms = new ArrayList<>();
@@ -265,22 +224,7 @@ public class Expression implements TexElement{
             newTerms.add(new Term(Collections.singletonList(newCoefficient), variables));
         }
 
-        for (Fraction constant : num.constants) {
-            Fraction newCoefficient = constant
-                    .div(den.terms.get(0).getCoefficients().get(0));
-
-            List<Variable> variables = new ArrayList<>();
-            List<Variable> denVars = new ArrayList<>(den.terms.get(0).getVariables());
-
-            // Inverse all variables
-            for (Variable denVar : denVars) {
-                variables.add(new Variable(denVar.getName(), -denVar.getDegree()));
-            }
-
-            newTerms.add(new Term(Collections.singletonList(newCoefficient), variables));
-        }
-
-        Expression result = new Expression(newTerms, Collections.emptyList());
+        Expression result = new Expression(newTerms);
         return simplify ? result.simplify() : result;
     }
 
@@ -297,11 +241,11 @@ public class Expression implements TexElement{
     }
 
     public Expression pow(Expression other) {
-        if (!(other.terms.isEmpty() && other.constants.size() == 1)) {
+        if (!other.isConstant()) {
             throw new ArithmeticException("Expressions can only be raised to an integer");
         }
 
-        Fraction constant = other.constants.get(0);
+        Fraction constant = other.constant().getCoefficients().get(0);
 
         double n = constant.toDouble();
 
@@ -314,6 +258,10 @@ public class Expression implements TexElement{
 
     @Override
     public String toString() {
+        if (terms.isEmpty()) {
+            return "0";
+        }
+
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < terms.size(); i++) {
@@ -349,18 +297,6 @@ public class Expression implements TexElement{
             }
 
             sb.append(term);
-        }
-
-        for (int i = 0; i < constants.size(); i++) {
-            Fraction constant = constants.get(i);
-
-            if (!terms.isEmpty() || i > 0) {
-                sb.append(constant.toDouble() < 0 ? " - " : " + ");
-            } else if (constant.toDouble() < 0) {
-                sb.append('-');
-            }
-
-            sb.append(constant.abs());
         }
 
         return sb.toString();
@@ -404,19 +340,16 @@ public class Expression implements TexElement{
             sb.append(term.toTex());
         }
 
-        for (int i = 0; i < constants.size(); i++) {
-            Fraction constant = constants.get(i);
-
-            if (!terms.isEmpty() || i > 0) {
-                sb.append(constant.toDouble() < 0 ? " - " : " + ");
-            } else if (constant.toDouble() < 0) {
-                sb.append('-');
-            }
-
-            sb.append(constant.abs().toTex());
-        }
-
         return sb.toString();
+    }
+
+    private boolean isConstant() {
+        for (Term term : terms) {
+            if (term.maxDegree() > 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private Expression removeTermsWithCoefficientZero() {
@@ -426,7 +359,7 @@ public class Expression implements TexElement{
                 newTerms.add(term);
             }
         }
-        return new Expression(newTerms, constants);
+        return new Expression(newTerms);
     }
 
     private Expression combineLikeTerms() {
@@ -447,31 +380,18 @@ public class Expression implements TexElement{
             newTerms.add(accumulator);
             terms.remove(i--);
         }
-        return new Expression(newTerms, constants);
-    }
-
-    private Expression moveTermsWithDegreeZeroToConstants() {
-        List<Term> keepTerms = new ArrayList<>();
-        List<Fraction> newConstants = new ArrayList<>();
-
-        for (Term term : terms) {
-            if (term.maxDegree() == 0) {
-                newConstants.add(term.coefficient());
-            } else {
-                keepTerms.add(term);
-            }
-        }
-
-        newConstants.addAll(this.constants);
-
-        return new Expression(keepTerms, newConstants);
+        return new Expression(newTerms);
     }
 
     private Expression sort() {
         List<Term> sortedTerms = new ArrayList<>(terms);
         sortedTerms.sort((a, b) -> {
-            String aName = a.getVariables().isEmpty() ? "" : a.getVariables().get(0).getName();
-            String bName = b.getVariables().isEmpty() ? "" : b.getVariables().get(0).getName();
+            if (a.getVariables().isEmpty() ||  b.getVariables().isEmpty()) {
+                return b.maxDegree() - a.maxDegree();
+            }
+
+            String aName = a.getVariables().get(0).getName();
+            String bName = b.getVariables().get(0).getName();
 
             int value = aName.compareTo(bName);
 
@@ -479,7 +399,7 @@ public class Expression implements TexElement{
 
             return b.maxDegree() - a.maxDegree();
         });
-        return new Expression(sortedTerms, constants);
+        return new Expression(sortedTerms);
     }
 
     public boolean hasVariable(String name) {
@@ -545,7 +465,7 @@ public class Expression implements TexElement{
         if (obj instanceof Expression) {
             Expression me = this.simplify();
             Expression other = ((Expression) obj).simplify();
-            return me.terms.equals(other.terms) && me.constants.equals(other.constants);
+            return me.terms.equals(other.terms);
         }
         return this == obj;
     }

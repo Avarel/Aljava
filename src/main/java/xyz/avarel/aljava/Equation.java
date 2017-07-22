@@ -55,36 +55,26 @@ public class Equation implements TexElement {
                 }
             }
 
-            newRhs = newRhs.minus(lhs.constant());
-            newRhs = newRhs.plus(rhs.constant());
-
-            if (newLhs.getTerms().isEmpty()) {
-                if (newLhs.constant().equals(newRhs.constant())) {
-                    return Collections.singletonList(new Expression(new Fraction(1,1)));
-                } else {
-                    throw new ArithmeticException("No solution");
-                }
+            if (newLhs.getTerms().isEmpty() && newRhs.getTerms().isEmpty()) {
+                return Collections.singletonList("All real numbers");
             }
 
             newRhs = newRhs.div(newLhs.getTerms().get(0).coefficient());
 
-            if (newRhs.getTerms().isEmpty()) {
-                return Collections.singletonList(new Expression(newRhs.constant().reduce()));
-            }
+//            if (newRhs.getTerms().isEmpty()) {
+//                return Collections.singletonList(new Expression(newRhs.constant().reduce()));
+//            }
 
             newRhs = newRhs.simplify();
             return Collections.singletonList(newRhs);
         }
 
+//        throw new ArithmeticException("Can not solve");
         // Otherwise, move everything to the LHS.
         Expression newLhs = lhs.minus(rhs);
 
         if (newLhs.getTerms().isEmpty()) {
-            if (newLhs.constant().toDouble() == 0) {
-                return Collections.singletonList(new Expression(new Fraction(1,1)));
-            } else {
-                throw new ArithmeticException("No solution");
-            }
+            throw new ArithmeticException("No solution");
         } else if (isQuadratic(variable)) {
             Fraction a = new Fraction(0);
             Fraction b = new Fraction(0);
@@ -97,7 +87,7 @@ public class Equation implements TexElement {
                 }
             }
 
-            Fraction c = newLhs.constant();
+            Fraction c = newLhs.constant().getCoefficients().get(0);
 
             Fraction discriminant = b.pow(2).minus(a.times(c).times(4));
 
