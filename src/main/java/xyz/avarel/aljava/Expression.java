@@ -304,6 +304,10 @@ public class Expression implements TexElement{
 
     @Override
     public String toTex() {
+        if (terms.isEmpty()) {
+            return "0";
+        }
+
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < terms.size(); i++) {
