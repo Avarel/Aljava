@@ -43,9 +43,9 @@ public class Term implements TexElement {
     public Fraction coefficient() {
         Fraction coefficient = new Fraction(1);
         for (Fraction f : coefficients) {
-            coefficient = coefficient.times(f);
+            coefficient = coefficient.times(f, false);
         }
-        return coefficient;
+        return coefficient.reduce();
     }
 
     private Term combineVariables() {
@@ -62,8 +62,11 @@ public class Term implements TexElement {
 
         List<Variable> newVars = new ArrayList<>(uniqueVars.size());
         for (Map.Entry<String, Integer> entry : uniqueVars.entrySet()) {
-            newVars.add(new Variable(entry.getKey(), entry.getValue()));
+            if (entry.getValue() != 0) {
+                newVars.add(new Variable(entry.getKey(), entry.getValue()));
+            }
         }
+
         return new Term(coefficients, newVars);
     }
 

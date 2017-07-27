@@ -145,6 +145,7 @@ public class Fraction implements TexElement {
     public boolean equals(Object obj) {
         if (obj instanceof Fraction) {
             Fraction other = (Fraction) obj;
+
             return numerator == other.numerator
                     && denominator == other.denominator;
         }

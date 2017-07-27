@@ -202,7 +202,7 @@ public class Expression implements TexElement{
             for (int i = 0; i < numVars.size(); i++) {
                 Variable numVar = numVars.get(i);
                 int newDegree = numVar.getDegree();
-                for (int j = i + 1; j < terms.size(); j++) {
+                for (int j = 0; j < denVars.size(); j++) {
                     Variable denVar = denVars.get(j);
                     if (numVar.getName().equals(denVar.getName())) {
                         newDegree -= denVar.getDegree();
